@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from './firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, increment, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { 
@@ -14,6 +14,8 @@ const CustomerPortal = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [payAmount, setPayAmount] = useState('');
+  const [payingBalance, setPayingBalance] = useState(false);
   const { cart } = useCart();
 
   // This sums up all quantities in the cart
@@ -56,6 +58,88 @@ const CustomerPortal = () => {
     navigate('/');
   };
 
+  // Razorpay Account Balance Settlement Overlay Bridge
+  const processBalancePayment = (amountToPay) => {
+    return new Promise((resolve, reject) => {
+      const options = {
+        key: "rzp_test_SP5Q9mjEkrxM97", // Replace with your live or test rzp_ Key ID
+        amount: amountToPay * 100, // Conversion from Rupees to Paisa (₹1 = 100 paisa)
+        currency: "INR",
+        name: "Annapurna Plastocorp",
+        description: "Account Balance Settlement",
+        image: "https://annapurna-plastocorp.web.app/logo.png",
+        handler: function (response) {
+          resolve(response.razorpay_payment_id);
+        },
+        prefill: {
+          name: user?.name || "",
+          contact: user?.phone || ""
+        },
+        theme: {
+          color: "#10b981"
+        },
+        modal: {
+          ondismiss: function () {
+            setPayingBalance(false);
+            alert("Settlement transaction closed.");
+            reject(new Error("Dismissed"));
+          }
+        }
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    });
+  };
+
+  const handlePayBalanceSubmit = async () => {
+    const amount = parseFloat(payAmount);
+    const maxDue = user?.pendingPayment || 0;
+
+    if (!amount || amount <= 0) {
+      alert("Please enter a valid amount to pay.");
+      return;
+    }
+    if (amount > maxDue) {
+      alert(`You can only pay up to your outstanding balance of ₹${maxDue}`);
+      return;
+    }
+
+    setPayingBalance(true);
+    try {
+      // 1. Trigger Razorpay Payment Window
+      const paymentId = await processBalancePayment(amount);
+
+      // 2. Decrement outstanding balance due in the user's document safely
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      await updateDoc(userDocRef, {
+        pendingPayment: increment(-amount)
+      });
+
+      // 3. Log a receipt statement document into a collections ledger
+      await addDoc(collection(db, 'payments'), {
+        uid: auth.currentUser.uid,
+        customerName: user?.name || "Customer",
+        amountPaid: amount,
+        razorpayPaymentId: paymentId,
+        type: "Credit Account Balance Settlement",
+        createdAt: serverTimestamp()
+      });
+
+      alert(`Successfully cleared ₹${amount}! Account parameters updated.`);
+      setPayAmount('');
+      
+      // Refresh local user state snapshot metrics
+      const freshSnap = await getDoc(userDocRef);
+      if (freshSnap.exists()) {
+        setUser(freshSnap.data());
+      }
+    } catch (err) {
+      console.error("Settlement tracking error:", err);
+    } finally {
+      setPayingBalance(false);
+    }
+  };
+
   if (loading) return <div className="loader">Loading Portal...</div>;
 
   return (
@@ -80,8 +164,8 @@ const CustomerPortal = () => {
   
   <div className="cart-trigger" onClick={() => navigate('/cart')}>
     <div className="cart-icon-wrapper">
-      <FiShoppingCart size={28} />
       {itemCount > 0 && <span className="cart-badge-dot">{itemCount}</span>}
+      <FiShoppingCart size={28} />
     </div>
     <span>My Cart</span>
   </div>
@@ -98,12 +182,37 @@ const CustomerPortal = () => {
           </div>
         </div>
 
-      {/* Pending Payment Notification - Placed prominently above the grid */}
-{!loading && user?.pendingPayment > 0 && (
-  <div className="payment-section-wrapper animate-fadeIn">
-    
-  </div>
-)}
+{/* DYNAMIC ACCOUNT BALANCES PAYMENT CLEARANCE BLOCK */}
+        {user?.pendingPayment > 0 && (
+          <div className="payment-warning-card">
+            <div className="warning-content">
+              <FiAlertCircle className="warning-icon" />
+              <div className="warning-text">
+                <h3>Outstanding Account Balance</h3>
+                <p>Total pending credit terms clearance: <span>₹{user.pendingPayment}</span></p>
+              </div>
+            </div>
+            
+            <div className="balance-payment-actions">
+              <input 
+                type="number"
+                placeholder="Enter amount to pay"
+                value={payAmount}
+                max={user.pendingPayment}
+                onChange={(e) => setPayAmount(e.target.value)}
+                className="balance-pay-input"
+                disabled={payingBalance}
+              />
+              <button 
+                onClick={handlePayBalanceSubmit} 
+                className="btn-pay-now"
+                disabled={payingBalance}
+              >
+                {payingBalance ? "Processing..." : "Pay Now"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Dashboard Grid */}
         <div className="dashboard-grid">
@@ -149,12 +258,12 @@ const CustomerPortal = () => {
           </div>
         </div>
 
-        {/* <button 
+         <button 
   onClick={bulkUploadProducts} 
   style={{ padding: '15px', background: 'red', color: 'white', margin: '20px' }}
 >
   SYNC DATABASE (CLICK ONCE)
-</button> */}
+</button>
       </main>
     </div>
   );
