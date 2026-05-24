@@ -14,28 +14,36 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('annapurna_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product, variant, quantity) => {
-    setCart(prevCart => {
-      const existingItemIndex = prevCart.findIndex(
-        item => item.id === product.id && item.size === variant.size
-      );
+ const addToCart = (product, variant, quantity) => {
+  setCart(prevCart => {
+    // 1. Identify the unique target ID reliably (fallback to product.id)
+    const targetId = product.id;
 
-      if (existingItemIndex > -1) {
-        const newCart = [...prevCart];
-        newCart[existingItemIndex].quantity += quantity;
-        return newCart;
-      }
-      
-      return [...prevCart, { 
-        id: product.id, 
-        name: product.name, 
-        size: variant.size, 
-        price: variant.price, 
-        image: product.imageUrl,
-        quantity 
-      }];
-    });
-  };
+    // 2. Find if the exact same product ID with the exact same size variant is already in the cart
+    const existingItemIndex = prevCart.findIndex(
+      item => item.id === targetId && item.size === variant.size
+    );
+
+    // 3. If it exists, map through and update only that item's quantity
+    if (existingItemIndex > -1) {
+      return prevCart.map((item, idx) => 
+        idx === existingItemIndex 
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
+      );
+    }
+    
+    // 4. If it's brand new, append it as a clean new item entry
+    return [...prevCart, { 
+      id: targetId, 
+      name: product.name, 
+      size: variant.size, 
+      price: variant.price, 
+      image: product.imageUrl,
+      quantity 
+    }];
+  });
+};
 
   const removeFromCart = (index) => {
     setCart(prev => prev.filter((_, i) => i !== index));
