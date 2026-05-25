@@ -258,12 +258,12 @@ const CustomerPortal = () => {
           </div>
         </div>
 
-         <button 
+         {/* <button 
   onClick={bulkUploadProducts} 
   style={{ padding: '15px', background: 'red', color: 'white', margin: '20px' }}
 >
   SYNC DATABASE (CLICK ONCE)
-</button>
+</button> */}
       </main>
     </div>
   );

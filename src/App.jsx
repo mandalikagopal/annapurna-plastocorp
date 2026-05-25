@@ -9,6 +9,7 @@ import ProductDetail from './ProductDetail';
 import Profile from './Profile';
 import Cart from './Cart'; 
 import Orders from './Orders';
+import AdminPortal from './AdminPortal';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/admin" element={<AdminPortal />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>

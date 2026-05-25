@@ -5,7 +5,31 @@ import toast from 'react-hot-toast';
 const allProducts = [
   // PLATES
   {
-    name: "Green/Multicolour/White Plates",
+    name: "Green Plates",
+    category: "Plates",
+    description: "Standard high-quality disposable plates for catering and events. Available in multiple colors.",
+    imageUrl: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=500",
+    variants: [
+      { size: '8"', price: 100, images: ["https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=500", "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?q=80&w=500"] }, 
+      { size: '10"', price: 120, images: ["https://images.unsplash.com/photo-1578474846511-04ba529f0b88?q=80&w=500", "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=500"] },
+      { size: '12"', price: 150, images: ["https://images.unsplash.com/photo-1531234799389-dcb7651eb0a2?q=80&w=500"] }, 
+      { size: '14"', price: 180, images: ["https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=500"] }
+    ]
+  },
+  {
+    name: "Multicolour Plates",
+    category: "Plates",
+    description: "Standard high-quality disposable plates for catering and events. Available in multiple colors.",
+    imageUrl: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=500",
+    variants: [
+      { size: '8"', price: 100, images: ["https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=500", "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?q=80&w=500"] }, 
+      { size: '10"', price: 120, images: ["https://images.unsplash.com/photo-1578474846511-04ba529f0b88?q=80&w=500", "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=500"] },
+      { size: '12"', price: 150, images: ["https://images.unsplash.com/photo-1531234799389-dcb7651eb0a2?q=80&w=500"] }, 
+      { size: '14"', price: 180, images: ["https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=500"] }
+    ]
+  },
+  {
+    name: "White Plates",
     category: "Plates",
     description: "Standard high-quality disposable plates for catering and events. Available in multiple colors.",
     imageUrl: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=500",
@@ -97,7 +121,19 @@ const allProducts = [
 
   // CARRY BAGS
   {
-    name: "Transparent/Starmake Bags",
+    name: "Transparent Bags",
+    category: "Carry Bags",
+    description: "Heavy-duty transparent carry bags for general retail and grocery use.",
+    imageUrl: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=500",
+    variants: [
+      { size: "10x12", price: 200, images: ["https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=500"] }, 
+      { size: "11x14", price: 240, images: ["https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=500", "https://images.unsplash.com/photo-1531234799389-dcb7651eb0a2?q=80&w=500"] },
+      { size: "13x16", price: 280, images: ["https://images.unsplash.com/photo-1531234799389-dcb7651eb0a2?q=80&w=500"] }, 
+      { size: "16x20", price: 350, images: ["https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=500"] }
+    ]
+  },
+  {
+    name: "Starmake Bags",
     category: "Carry Bags",
     description: "Heavy-duty transparent carry bags for general retail and grocery use.",
     imageUrl: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=500",

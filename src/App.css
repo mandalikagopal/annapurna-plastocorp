@@ -1066,6 +1066,13 @@
   cursor: not-allowed;
 }
 
+/* Admin Portal Active Form Layout Tab Styles Overrides */
+.tab-btn.active {
+  background-color: white !important;
+  color: #10b981 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
 /* Clear vertical constraints on modern responsive layouts */
 @media(min-width: 600px) {
   .balance-payment-actions {
